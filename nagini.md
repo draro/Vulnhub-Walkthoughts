@@ -213,7 +213,7 @@ We can now try to login as snape via ssh:
 ssh snape@quic.nagini.hogwarts
 ```
 
-![Alt text](./HARRY_POTTER_NAGINI/img/sanpe.PNG?raw=true "SNAPE")
+![Alt text](./HARRY_POTTER_NAGINI/img/snape.PNG?raw=true "SNAPE")
 
 I tried to check if we have sudo permission, but no, then I checked the system permission to run some code and found something interesting.
 
