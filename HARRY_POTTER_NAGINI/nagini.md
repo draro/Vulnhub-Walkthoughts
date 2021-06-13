@@ -4,7 +4,8 @@ First step is to scan our Netwok to find the machine IP, in my case the host has
 
 We use nmap to scan the target machine with the command:
 
-'''bash
+```bash
 nmap -sC -sV -p- 192.168.1.174
-'''
+```
+
 ![Alt text](./img/nmap.PNG?raw=true "NMAP Results")
