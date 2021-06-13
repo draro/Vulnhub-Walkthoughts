@@ -99,7 +99,7 @@ So, I try to add the payload on the url in the browser. It seems that doesn't wo
 
 If you don't see anything refresh the page, it can take few refresh before something is displayed.
 
-![Alt text](./img/1Try.PNG?raw=true "List Tables")
+![Alt text](./img/1try.PNG?raw=true "List Tables")
 
 As you can see we can display the tables and we can see that there is a joomla_users table, which we are going to see next by creating another payload with Gopherus as done previously.
 
