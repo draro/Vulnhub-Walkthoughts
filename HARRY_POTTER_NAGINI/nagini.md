@@ -83,3 +83,7 @@ curl http://192.168.1.174/internalResourceFeTcher.php?url=file:///var/www/html/j
 ```
 
 ![Alt text](./img/config.PNG?raw=true "/var/www/html/joomla/configuration.php")
+
+Searching on Google "SSRF exploit mysql",
+![Alt text](./img/google.PNG?raw=true "Google search")
+I found my answers in [Gopherus](https://github.com/tarunkant/Gopherus)
