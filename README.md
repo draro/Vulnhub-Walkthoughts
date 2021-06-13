@@ -1,3 +1,3 @@
 # Walkthoughts
 
-HARRY POTTER: NAGINI [a relative link](./HARRY_POTTER_NAGINI/nagini.md)
+- [HARRY POTTER: NAGINI](./HARRY_POTTER_NAGINI/nagini.md)
