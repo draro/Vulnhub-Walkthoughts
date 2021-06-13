@@ -61,3 +61,7 @@ We retrieve 2 important informations:
 Let's see what is /internalResourceFeTcher.php
 
 ![Alt text](./img/internalFetcher.PNG?raw=true "/internalResourceFeTcher.php")
+
+Let's try to search for a and see the result.
+
+![Alt text](./img/a.PNG?raw=true "/internalResourceFeTcher.php search")
