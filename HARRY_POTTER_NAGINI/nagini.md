@@ -53,3 +53,11 @@ Using curl we do a GET request on https://quic.nagini.hogwarts:
 ```
 
 ![Alt text](./img/http3.PNG?raw=true "CURL HTTP3")
+
+We retrieve 2 important informations:
+1 /internalResourceFeTcher.php
+2 .bak
+
+Let's see what is /internalResourceFeTcher.php
+
+![Alt text](./img/internalFetcher.PNG?raw=true "/internalResourceFeTcher.php")
