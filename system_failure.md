@@ -1,5 +1,7 @@
 # Walkthrough VULNHUB --> SYSTEM FAILURE
 
+### Thanks to my friend 0xJin for this funny machine
+
 First step is to scan our Netwok to find the machine IP, in my case the host has ip 192.168.1.109.
 
 We use nmap to scan the target machine with the command:
