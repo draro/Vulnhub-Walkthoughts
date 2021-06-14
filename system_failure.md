@@ -145,3 +145,238 @@ smb: \> more share
 We go on [https://crackstation.net/](https://crackstation.net/) and we paste the string we found
 
 ![crack station](./System_Failre/crackstation.PNG?raw=true "Crack Station")
+
+We found the password **qazwsxedc** for the user Admin
+
+Let's continue to find info with **enum4linux**:
+
+```bash
+enum4linux 192.168.1.109
+```
+
+We find that there are 4 linux users:
+
+```bash
+[+] Enumerating users using SID S-1-22-1 and logon username '', password ''
+S-1-22-1-1000 Unix User\valex (Local User)
+S-1-22-1-1001 Unix User\admin (Local User)
+S-1-22-1-1002 Unix User\jin (Local User)
+S-1-22-1-1003 Unix User\superadmin (Local User)
+```
+
+Let's try now to use the instructions from the message we found.
+
+```bash
+┌──(root💀kali)-[/home/animale]
+└─# ftp 192.168.1.109
+Connected to 192.168.1.109.
+220 (vsFTPd 3.0.3)
+Name (192.168.1.109:animale): admin
+331 Please specify the password.
+Password:
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> pwd
+257 "/home/admin" is the current directory
+```
+
+**We are IN!!!**
+
+Let's see what we find:
+
+```bash
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+drwxr-xr-x    2 0        0            4096 Dec 16 13:45 Interesting
+drwxr-xr-x    2 0        0            4096 Dec 16 13:45 Secr3t
+drwxr-xr-x    3 0        0            4096 Dec 20 06:25 Syst3m
+drwxr-xr-x    2 0        0            4096 Dec 16 13:45 Useful
+226 Directory send OK.
+```
+
+We have now to check all the folders!
+
+```bash
+ftp> cd Interesting
+250 Directory successfully changed.
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+226 Directory send OK.
+ftp>
+```
+
+Interesting is empty!!
+
+```bash
+ftp> cd Secr3t
+250 Directory successfully changed.
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+226 Directory send OK.
+ftp>
+```
+
+Secr3t is empty!!
+
+```bash
+ftp> cd Syst3m
+250 Directory successfully changed.
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+drwxr-xr-x    2 0        0           36864 Dec 20 06:30 F4iluR3
+-rw-r--r--    1 0        0              89 Dec 20 06:17 here.txt
+226 Directory send OK.
+```
+
+Something in Syst3m. Let's check
+
+We can't read the here.txt, so let's check the F4iluR3 folder
+
+```bash
+ftp> cd F4iluR3
+250 Directory successfully changed.
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+-rw-r--r--    1 0        0            1696 Dec 20 06:25 file.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0001.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0002.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0003.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0004.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0005.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0006.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0007.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0008.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0009.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0010.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0011.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0012.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0013.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0014.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0015.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0016.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0017.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0018.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0019.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0020.txt
+-rw-r--r--    1 0        0            1696 Dec 20 06:26 file0021.txt
+......... CONTINUE
+```
+
+#### 1001 Files
+
+Let's downlad everything, but before doing it, let's close the connection and create a /tmp/SystemFailure folder
+
+```bash
+┌──(root💀kali)-[/home/animale]
+└─# mkdir /tmp/SystemFailure
+
+┌──(root💀kali)-[/home/animale]
+└─# cd /tmp/SystemFailure
+```
+
+#### Now we can reconnect and download all the txt files
+
+```bash
+┌──(root💀kali)-[/tmp/SystemFailure]
+└─# ftp 192.168.1.109
+Connected to 192.168.1.109.
+220 (vsFTPd 3.0.3)
+Name (192.168.1.109:animale): admin
+331 Please specify the password.
+Password:
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> cd Syst3m
+250 Directory successfully changed.
+ftp> cd F4iluR3
+250 Directory successfully changed.
+ftp> prompt off
+Interactive mode off.
+ftp> mget *
+```
+
+Keeping the ftp open, in a new terminal, we move into the /tmp/SystemFailure folder
+
+```bash
+┌──(root💀kali)-[/home/animale]
+└─# cd /tmp/SystemFailure
+```
+
+Let's try to read some file...
+
+```bash
+┌──(root💀kali)-[/tmp/SystemFailure]
+└─# cat file.txt
+Systems Failure is a role-playing game written by Bill Coffin and published by Palladium Books in July 1999.The fictional premise for the game is that during the "Millennium bug" scare, actual "Bugs" appeared. They are energy beings from beyond Earth (whether another dimension or another planet is not clear) that invaded at the end of 1999, leaving a post-apocalyptic world in their wake. The Bugs feed on energy and are capable of transmitting themselves through modern power transmission and phone lines.The Bugs come in several varieties. There are the drone-like Army Ants who have only basic intelligence, the more intelligent Assassin Bugs who can replicate human speech, though imperfectly, and the flying Lightning Bugs, amongst others. All of them are able to turn themselves into energy or rapidly call up reinforcements. In addition to these, there are "brain bugs", a variety that can invade human minds and turn them into zombie-like servants of the Bugs.Players take the part of survivors of this invasion ten years after it occurred. Some groups, such as survival-oriented militias, were well-prepared for something to go wrong and so form the nuclei of stable societies and resistance to the Bugs. Military units have converged on NORAD which is using genetic engineering to create new weapons that the Bugs cannot gain control of, and to create super-soldiers, both those that have psionic powers and those who have been mutated into insect-like supermen using Bug DNA. In addition, there are people who have been driven mad by the stress, those who have joined gangs and seek to exploit others, and those who trade their skills as mechanics, medics, scientists, or merchants.
+```
+
+All the random files I opened were all the same.. Let's see if their size is all the same...
+
+```bash
+┌──(root💀kali)-[/tmp/SystemFailure]
+└─# ls -ltr
+......
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0175.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0177.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0176.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0178.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0180.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0179.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0181.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0182.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0184.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0183.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0185.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0186.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0187.txt
+-rw-r--r-- 1 root root 1714 Jun 14 08:28 file0189.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0188.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0190.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0191.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0193.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0192.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0195.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0194.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0197.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0196.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0198.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0199.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0201.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0200.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0203.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0202.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0204.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0206.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0205.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0207.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0209.txt
+-rw-r--r-- 1 root root 1696 Jun 14 08:28 file0208.txt
+.......
+```
+
+#### NOTED SOMETHING??? FILE0189.txt is bigger than the others...
+
+I opened the file0189 as well the file0188 to compare the differences:
+
+```bash
+┌──(root💀kali)-[/tmp/SystemFailure]
+└─# cat file0189.txt
+Systems Failure is a role-playing game written by Bill Coffin and published by Palladium Books in July 1999.The fictional premise for the game is that during the "Millennium bug" scare, actual "Bugs" appeared. They are energy beings from beyond Earth (whether another dimension or another planet is not clear) that invaded at the end of 1999, leaving a post-apocalyptic world in their wake. The Bugs feed on energy and are capable of transmitting themselves through modern power transmission and phone lines.The Bugs come in several varieties. There are the drone-like Army Ants who have only basic intelligence, the more intelligent Assassin Bugs who can replicate human speech, though imperfectly, and the flying Lightning Bugs, amongst others. All of them are able to turn themselves into energy or rapidly call up reinforcements. In addition to these, there are "brain bugs", a variety that can invade human minds and turn them into zombie-like servants of the Bugs.Players take the part of survivors of this invasion ten years after it occurred. Some groups, such as survival-oriented militias, were well-prepared for something to go wrong and so form the nuclei of stable societies and resistance to the Bugs. Military units have converged on NORAD which is using genetic engineering to create new weapons that the Bugs cannot gain control of, and to create super-soldiers-J310MIYla1aVUaSV-, both those that have psionic powers and those who have been mutated into insect-like supermen using Bug DNA. In addition, there are people who have been driven mad by the stress, those who have joined gangs and seek to exploit others, and those who trade their skills as mechanics, medics, scientists, or merchants.
+
+┌──(root💀kali)-[/tmp/SystemFailure]
+└─# cat file0188.txt
+Systems Failure is a role-playing game written by Bill Coffin and published by Palladium Books in July 1999.The fictional premise for the game is that during the "Millennium bug" scare, actual "Bugs" appeared. They are energy beings from beyond Earth (whether another dimension or another planet is not clear) that invaded at the end of 1999, leaving a post-apocalyptic world in their wake. The Bugs feed on energy and are capable of transmitting themselves through modern power transmission and phone lines.The Bugs come in several varieties. There are the drone-like Army Ants who have only basic intelligence, the more intelligent Assassin Bugs who can replicate human speech, though imperfectly, and the flying Lightning Bugs, amongst others. All of them are able to turn themselves into energy or rapidly call up reinforcements. In addition to these, there are "brain bugs", a variety that can invade human minds and turn them into zombie-like servants of the Bugs.Players take the part of survivors of this invasion ten years after it occurred. Some groups, such as survival-oriented militias, were well-prepared for something to go wrong and so form the nuclei of stable societies and resistance to the Bugs. Military units have converged on NORAD which is using genetic engineering to create new weapons that the Bugs cannot gain control of, and to create super-soldiers, both those that have psionic powers and those who have been mutated into insect-like supermen using Bug DNA. In addition, there are people who have been driven mad by the stress, those who have joined gangs and seek to exploit others, and those who trade their skills as mechanics, medics, scientists, or merchants.
+```
+
+**The difference is J310MIYla1aVUaSV-**
+
+It seems a Base32 or Base64 encoding, but it is not, so I went to [https://gchq.github.io/CyberChef](https://gchq.github.io/CyberChef) and tryed all the baseXX encoding, ending up to BASE62
+
+![base62](./System_Failure/base62.PNG "base62")
