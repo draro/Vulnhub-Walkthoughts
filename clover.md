@@ -1,4 +1,4 @@
-# Walkthrough VULNHUB --> SYSTEM FAILURE
+# Walkthrough VULNHUB --> CLOVER
 
 ### Thanks to my friend 0xJin for this funny machine
 
