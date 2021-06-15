@@ -605,4 +605,37 @@ If you are reading this flag, without being rooted, it is not valid. You must en
 root@SystemFailure:/root#
 ```
 
+It seems that the flag is not there....
+Let's run **ls -la**
+
+```bash
+ls -la
+total 32
+drwx------  4 root root 4096 Dec 20 05:38 .
+drwxr-xr-x 18 root root 4096 Dec 16 03:54 ..
+lrwxrwxrwx  1 root root    9 Dec 20 05:38 .bash_history -> /dev/null
+-rw-r--r--  1 root root  570 Jan 31  2010 .bashrc
+drwxr-xr-x  3 root root 4096 Dec 16 04:19 .local
+-rw-r--r--  1 root root  148 Aug 17  2015 .profile
+-rw-r--r--  1 root root  148 Dec 16 16:04 root.txt
+drwxr-xr-x  2 root root 4096 Dec 16 12:28 .rpmdb
+-rw-r--r--  1 root root  449 Dec 16 16:30 .SuP3rFin4Lfl4g.txt
+cat .SuP3rFin4Lfl4g.txt
+
+╔═╗┬ ┬┌─┐┌┬┐┌─┐┌┬┐  ╔═╗┌─┐┬┬  ┬ ┬┬─┐┌─┐
+╚═╗└┬┘└─┐ │ ├┤ │││  ╠╣ ├─┤││  │ │├┬┘├┤
+╚═╝ ┴ └─┘ ┴ └─┘┴ ┴  ╚  ┴ ┴┴┴─┘└─┘┴└─└─┘
+
+I knew you would succeed.
+
+Oh no.
+
+2527f167fe33658f6b976f3a4ac988dd
+
+Follow me and give feedback on Twitter: 0xJin
+
+L1N5c3QzbUY0aUx1UjIzNTEyNA==
+
+```
+
 ## DONE
