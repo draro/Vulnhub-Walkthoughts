@@ -389,7 +389,7 @@ Table: users
 
 We know that **asta** is also a linux user... let's decrypt the password
 
-![md5](./clover/md5.PN?raw=true "MD5")
+![md5](./clover/md5.PNG?raw=true "MD5")
 
 We got our password... Let's connect via ssh
 
