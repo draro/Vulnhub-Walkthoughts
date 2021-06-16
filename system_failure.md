@@ -146,7 +146,7 @@ smb: \> more share
 
 We go on [https://crackstation.net/](https://crackstation.net/) and we paste the string we found
 
-![crack station](./System_Failre/crackstation.PNG?raw=true "Crack Station")
+![crack station](./System_Failure/crackstation.PNG?raw=true "Crack Station")
 
 We found the password **qazwsxedc** for the user Admin
 
