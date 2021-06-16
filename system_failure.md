@@ -110,7 +110,7 @@ Let's check for shares on the host :
         IPC$                                                    NO ACCESS       IPC Service (Samba 4.9.5-Debian)
 ```
 
-It appears that anonymous user has Read and Write permission
+It appears that anonymous folder give us Read and Write permission
 
 Let's connect through smbclient:
 
