@@ -134,7 +134,7 @@ Using binary mode to transfer files.
 ftp>
 ```
 
-We can get in the ftp server, now we have to eplore it...
+We can get in the ftp server, now we have to explore it...
 
 ```bash
 ftp> ls
