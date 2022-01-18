@@ -1,5 +1,9 @@
 # Walkthoughs
 
+## HTB
+- [Horizontall](./horizontall.md)
+
+## Vulnhub
 - [HARRY POTTER: NAGINI](./nagini.md)
 - [SYSTEM FAILURE](./system_failure.md)
 - [CLOVER](./clover.md)
