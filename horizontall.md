@@ -73,3 +73,33 @@ Progress: 6964 / 220561 (3.16%)                                                 
 
 ```
 
+I then used **wfuzz** to do a subdomain enumeration and after some time, something interesting came out:
+
+```bash
+┌──(root💀animale)-[/home/animale]
+└─# wfuzz -w Tools/Subdomain.txt -u http://horizontall.htb --hc 301,400 -c -H "Host:FUZZ.horizontall.htb"             
+ /usr/lib/python3/dist-packages/wfuzz/__init__.py:34: UserWarning:Pycurl is not compiled against Openssl. Wfuzz might not work correctly when fuzzing SSL sites. Check Wfuzz's documentation for more information.
+********************************************************
+* Wfuzz 3.1.0 - The Web Fuzzer                         *
+********************************************************
+
+Target: http://horizontall.htb/
+Total requests: 649649
+
+=====================================================================
+ID           Response   Lines    Word       Chars       Payload                                                                                                                                                                      
+=====================================================================
+
+000000003:   200        1 L      43 W       901 Ch   "www"                                                                                                                                                                        
+000019888:   200        1 L      43 W       901 Ch      "www"                                                                                                                                                                        
+000032451:   200        19 L     33 W       413 Ch      "api-prod"                                                                                                                                                                   
+
+
+^C /usr/lib/python3/dist-packages/wfuzz/wfuzz.py:80: UserWarning:Finishing pending requests...
+
+Total time: 1045.325
+Processed Requests: 89745
+Filtered Requests: 89742
+Requests/sec.: 85.85366
+
+```
