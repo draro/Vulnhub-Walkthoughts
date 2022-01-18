@@ -103,3 +103,54 @@ Filtered Requests: 89742
 Requests/sec.: 85.85366
 
 ```
+
+#### GREAT NEWS!! 
+
+Let's add it to the /etc/hosts:
+
+```bash
+┌──(root💀animale)-[/home/animale]
+└─# echo "10.10.11.105 api-prod.horizontall.htb" >> /etc/hosts  
+```
+
+Now it's time for another scan with **gobuster**:
+
+```bash
+┌──(root💀animale)-[/home/animale]
+└─# gobuster dir -u http://api-prod.horizontall.htb/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -x txt, php -e -t 50
+===============================================================
+Gobuster v3.1.0
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://api-prod.horizontall.htb/
+[+] Method:                  GET
+[+] Threads:                 50
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.1.0
+[+] Extensions:              txt,
+[+] Expanded:                true
+[+] Timeout:                 10s
+===============================================================
+2022/01/18 07:16:01 Starting gobuster in directory enumeration mode
+===============================================================
+http://api-prod.horizontall.htb/reviews              (Status: 200) [Size: 507]
+http://api-prod.horizontall.htb/users                (Status: 403) [Size: 60] 
+http://api-prod.horizontall.htb/admin                (Status: 200) [Size: 854]
+http://api-prod.horizontall.htb/Reviews              (Status: 200) [Size: 507]
+http://api-prod.horizontall.htb/robots.txt           (Status: 200) [Size: 121]
+http://api-prod.horizontall.htb/Users                (Status: 403) [Size: 60] 
+http://api-prod.horizontall.htb/Admin                (Status: 200) [Size: 854]
+http://api-prod.horizontall.htb/REVIEWS              (Status: 200) [Size: 507]
+http://api-prod.horizontall.htb/%C0                  (Status: 400) [Size: 69] 
+http://api-prod.horizontall.htb/%C0.txt              (Status: 400) [Size: 69] 
+http://api-prod.horizontall.htb/%C0.                 (Status: 400) [Size: 69] 
+                                                                              
+===============================================================
+2022/01/18 07:26:58 Finished
+===============================================================
+```
+
+I've checked the robots.txt, but it was empty, so I went to the admin link:
+
+![Alt text](./HTB_HORIZONTALL/admin.png "Horizontall.htb")
