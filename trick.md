@@ -244,6 +244,7 @@ After some searches I found those 2 articles:
 Following what stated there i did the following steps:
 1. copy the **/etc/fail2ban/action.d/iptables-multiport.conf** in michael home
 2. modify the coupied file as follow:
+
 ```
 # Option:  actionban
 # Notes.:  command executed when banning an IP. Take care that the
